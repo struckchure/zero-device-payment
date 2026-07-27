@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Register — ZeroDevicePay{% endblock %}
+{% block content %}
+<section class="card narrow">
+  <h1>Create account</h1>
+  <p class="muted">Registration auto-enrols simulated face + fingerprint templates.</p>
+  <form method="post" class="form">
+    <label>Username
+      <input name="username" value="{{ form.username or '' }}" required autofocus>
+    </label>
+    <label>Full name
+      <input name="full_name" value="{{ form.full_name or '' }}">
+    </label>
+    <label>Email
+      <input type="email" name="email" value="{{ form.email or '' }}" required>
+    </label>
+    <label>Password <span class="muted">(min 8 chars)</span>
+      <input type="password" name="password" required>
+    </label>
+    <button class="btn" type="submit">Register &amp; enrol biometrics</button>
+  </form>
+  <p class="muted">Already have an account? <a href="{{ url_for('main.login') }}">Log in</a>.</p>
+</section>
+{% endblock %}

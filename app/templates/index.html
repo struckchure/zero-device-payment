@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <h1>Zero-Device Biometric Payments</h1>
+  <p class="lead">
+    Authorize payments with your <strong>face or fingerprint</strong> — no card, no
+    phone, no dedicated terminal. Biometrics are captured from your camera or an
+    uploaded image and compared for real (OpenCV); only the bank is mocked, so it
+    runs entirely on your machine.
+  </p>
+  <div class="cta-row">
+    <a class="btn" href="{{ url_for('main.register') }}">Create an account</a>
+    <a class="btn btn-ghost" href="{{ url_for('main.login') }}">Customer login</a>
+    <a class="btn btn-ghost" href="{{ url_for('merchant.login') }}">Merchant login</a>
+  </div>
+</section>
+
+<section class="grid-3">
+  <div class="card">
+    <h3>1 · Enrol</h3>
+    <p>Capture a face/fingerprint from camera or upload. Templates are encrypted with Fernet.</p>
+  </div>
+  <div class="card">
+    <h3>2 · Authenticate</h3>
+    <p>Pay with face or fingerprint; the captured image is really compared to your template.</p>
+  </div>
+  <div class="card">
+    <h3>3 · Collect</h3>
+    <p>A merchant charges you by account ID; the mock bank atomically moves the funds.</p>
+  </div>
+</section>
+
+<section class="card">
+  <h3>Demo customers</h3>
+  <p>Seeded by <code>python seed.py</code>. Customers are funded to ₦50,000; log in and
+    enrol a face/fingerprint (camera or upload) before paying.</p>
+  <ul class="demo-list">
+    <li><strong>alice</strong> / Password123 — customer, ₦50,000</li>
+    <li><strong>bob</strong> / Password123 — customer, ₦50,000</li>
+    <li><strong>admin</strong> / Admin12345 — admin panel + metrics dashboard</li>
+  </ul>
+</section>
+
+<section class="card">
+  <h3>Demo merchants</h3>
+  <p>Log in as a merchant to collect payments from customers by account ID.</p>
+  <ul class="demo-list">
+    <li><strong>coffee</strong> / Merchant123 — Corner Coffee</li>
+    <li><strong>transit</strong> / Merchant123 — City Transit</li>
+    <li><strong>booknook</strong> / Merchant123 — BookNook</li>
+  </ul>
+</section>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Biometrics — ZeroDevicePay{% endblock %}
+{% block content %}
+<section class="card narrow">
+  <h1>Biometric enrolment</h1>
+  <p class="muted">
+    Capture a real <strong>face</strong> and/or <strong>fingerprint</strong> from your
+    camera or an uploaded image. Templates are compared for real (OpenCV/LBP) and
+    stored encrypted with Fernet. Enrol at least one to be able to pay.
+  </p>
+  <p>Currently enrolled:
+    {% for m in user.enrolled_modalities %}<span class="pill">{{ m }}</span>{% endfor %}
+    {% if not user.enrolled_modalities %}<span class="pill pill-warn">none</span>{% endif %}
+  </p>
+
+  <div class="capture" data-modality="face" data-label="Face"></div>
+  <div class="capture" data-modality="fingerprint" data-label="Fingerprint"></div>
+
+  <button class="btn" onclick="submitEnrol()">Enrol captured biometrics</button>
+  <pre id="enrol-result" class="result">Nothing enrolled yet this session.</pre>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/capture.js') }}"></script>
+<script src="{{ url_for('static', filename='js/enrol.js') }}"></script>
+{% endblock %}

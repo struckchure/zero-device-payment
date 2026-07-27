@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}Admin — ZeroDevicePay{% endblock %}
+{% block content %}
+<h1>Admin panel</h1>
+
+<div class="row-split">
+  <section class="card">
+    <h2>Matching controls</h2>
+    <p class="muted">Tune the real matcher at runtime.</p>
+    <form method="post" action="{{ url_for('admin.update_settings') }}" class="form">
+      <label>Match threshold (0–1) — similarity a probe must reach
+        <input name="match_threshold" value="{{ settings.match_threshold }}">
+      </label>
+      <label>Liveness minimum quality (0–1)
+        <input name="liveness_min_quality" value="{{ settings.liveness_min_quality }}">
+      </label>
+      <button class="btn" type="submit">Save settings</button>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>Performance metrics</h2>
+    <p class="muted">Compares real enrolled templates (genuine self-match vs cross-user impostors).</p>
+    <form method="post" action="{{ url_for('admin.run_metrics') }}" class="form">
+      <button class="btn" type="submit">Compute FAR / FRR / accuracy</button>
+    </form>
+    {% if history and not history.error %}
+    <div class="metric-grid">
+      <div class="metric"><span>FAR</span><b>{{ '%.3f'|format(history.FAR) }}</b></div>
+      <div class="metric"><span>FRR</span><b>{{ '%.3f'|format(history.FRR) }}</b></div>
+      <div class="metric"><span>Accuracy</span><b>{{ '%.3f'|format(history.accuracy) }}</b></div>
+      <div class="metric"><span>Threshold</span><b>{{ '%.2f'|format(history.threshold) }}</b></div>
+    </div>
+    <p class="muted">{{ history.users_tested }} enrolled user(s) ·
+      {{ history.impostor_attempts }} impostor comparisons.
+      {% if history.note %}<br>{{ history.note }}{% endif %}</p>
+    {% elif history and history.error %}
+    <p class="muted">{{ history.error }}</p>
+    {% endif %}
+  </section>
+</div>
+
+<section class="card">
+  <h2>Users ({{ users|length }})</h2>
+  <table class="table">
+    <thead><tr><th>ID</th><th>Username</th><th>Email</th><th>Role</th><th>Balance</th><th>Biometrics</th></tr></thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td>{{ u.id }}</td><td>{{ u.username }}</td><td>{{ u.email }}</td>
+        <td>{{ 'admin' if u.is_admin else 'user' }}</td>
+        <td>{% if u.account %}{{ u.account.balance|naira }}{% else %}—{% endif %}</td>
+        <td>{% for m in u.enrolled_modalities %}<span class="pill">{{ m }}</span>{% endfor %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section class="card">
+  <h2>Merchants ({{ merchants|length }})</h2>
+  <table class="table">
+    <thead><tr><th>Name</th><th>Login</th><th>Category</th><th>Account</th><th>Balance</th></tr></thead>
+    <tbody>
+      {% for m in merchants %}
+      <tr><td>{{ m.name }}</td><td>{{ m.username or '—' }}</td><td>{{ m.category }}</td>
+        <td><code>{{ m.account.account_number }}</code></td>
+        <td>{{ m.account.balance|naira }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section class="card">
+  <h2>Recent transactions</h2>
+  <table class="table">
+    <thead><tr><th>Reference</th><th>User</th><th>Merchant</th><th>Amount</th><th>Status</th><th>Code</th><th>When</th></tr></thead>
+    <tbody>
+      {% for t in transactions %}
+      <tr>
+        <td><code>{{ t.reference }}</code></td><td>{{ t.user.username if t.user }}</td>
+        <td>{{ t.merchant.name if t.merchant }}</td><td>{{ t.amount|naira }}</td>
+        <td><span class="status status-{{ t.status|lower }}">{{ t.status }}</span></td>
+        <td>{{ t.status_code }}</td>
+        <td class="muted">{{ t.created_at.strftime('%m-%d %H:%M') }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section class="card">
+  <h2>Recent live auth attempts</h2>
+  <table class="table">
+    <thead><tr><th>User</th><th>Biometric</th><th>Face</th><th>Finger</th><th>Live</th><th>Score</th><th>Result</th><th>ms</th><th>When</th></tr></thead>
+    <tbody>
+      {% for a in attempts %}
+      <tr>
+        <td>{{ a.user.username if a.user else a.claimed_username }}</td>
+        <td>{{ a.modality }}</td>
+        <td>{{ '%.3f'|format(a.face_score) if a.face_score is not none }}</td>
+        <td>{{ '%.3f'|format(a.fingerprint_score) if a.fingerprint_score is not none }}</td>
+        <td>{{ '✓' if a.liveness_passed else '✗' }}</td>
+        <td>{{ '%.3f'|format(a.fused_score) if a.fused_score is not none }}</td>
+        <td><span class="status status-{{ 'approved' if a.accepted else 'declined' }}">
+          {{ 'ACCEPT' if a.accepted else 'REJECT' }}</span></td>
+        <td>{{ '%.1f'|format(a.response_ms) }}</td>
+        <td class="muted">{{ a.created_at.strftime('%m-%d %H:%M') }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section class="card">
+  <h2>System logs</h2>
+  <table class="table logs">
+    <tbody>
+      {% for l in logs %}
+      <tr>
+        <td class="muted">{{ l.created_at.strftime('%m-%d %H:%M:%S') }}</td>
+        <td><span class="lvl lvl-{{ l.level|lower }}">{{ l.level }}</span></td>
+        <td>{{ l.category }}</td><td>{{ l.message }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

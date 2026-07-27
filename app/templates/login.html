@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Login — ZeroDevicePay{% endblock %}
+{% block content %}
+<section class="card narrow">
+  <h1>Log in</h1>
+  <form method="post" class="form">
+    <label>Username
+      <input name="username" value="{{ form.username or '' }}" required autofocus>
+    </label>
+    <label>Password
+      <input type="password" name="password" required>
+    </label>
+    <button class="btn" type="submit">Log in</button>
+  </form>
+  <p class="muted">No account? <a href="{{ url_for('main.register') }}">Register</a>.</p>
+</section>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Collect — ZeroDevicePay{% endblock %}
+{% block content %}
+<div class="row-split">
+  <section class="card">
+    <h1>🏪 {{ merchant.name }}</h1>
+    <div class="balance">
+      <span class="muted">Merchant balance</span>
+      <span class="amount">{{ merchant.account.balance|naira }}</span>
+    </div>
+    <p class="muted">Account {{ merchant.account.account_number }} · {{ merchant.category }}</p>
+  </section>
+
+  <section class="card">
+    <h2>Collect a payment</h2>
+    <p class="muted">Enter the customer's account ID; they capture a biometric to authorize.</p>
+    <div class="form">
+      <label>Customer account ID
+        <input id="account_id" placeholder="ACC000000000000">
+      </label>
+      <label>Amount (NGN)
+        <input id="amount" type="number" min="0.01" step="0.01" value="2500.00">
+      </label>
+      <label>Biometric
+        <select id="modality" onchange="toggleCaptureWidgets(this.value)">
+          <option value="face">Face</option>
+          <option value="fingerprint">Fingerprint</option>
+          <option value="both">Face + fingerprint</option>
+        </select>
+      </label>
+    </div>
+    <div class="capture" data-modality="face" data-label="Customer face"></div>
+    <div class="capture" data-modality="fingerprint" data-label="Customer fingerprint"></div>
+    <button class="btn" onclick="collectPayment()">Capture biometric &amp; collect</button>
+    <pre id="collect-result" class="result">No collection attempted yet.</pre>
+  </section>
+</div>
+
+<section class="card">
+  <h2>Demo customer account IDs</h2>
+  <p class="muted">For testing — copy an account ID into the collect form.</p>
+  <table class="table">
+    <thead><tr><th>Customer</th><th>Account ID</th><th>Balance</th></tr></thead>
+    <tbody>
+      {% for c in customers %}
+      <tr>
+        <td>{{ c.username }}</td>
+        <td><code>{{ c.account.account_number }}</code></td>
+        <td>{{ c.account.balance|naira }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section class="card">
+  <h2>Payments received</h2>
+  {% if transactions %}
+  <table class="table">
+    <thead><tr><th>Reference</th><th>Customer</th><th>Amount</th><th>Method</th><th>Status</th><th>When</th></tr></thead>
+    <tbody>
+      {% for t in transactions %}
+      <tr>
+        <td><code>{{ t.reference }}</code></td>
+        <td>{{ t.user.username if t.user }}</td>
+        <td>{{ t.amount|naira }}</td>
+        <td>{{ t.auth_method }}</td>
+        <td><span class="status status-{{ t.status|lower }}">{{ t.status }}</span></td>
+        <td class="muted">{{ t.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">No payments collected yet.</p>
+  {% endif %}
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/capture.js') }}"></script>
+<script src="{{ url_for('static', filename='js/merchant.js') }}"></script>
+<script>toggleCaptureWidgets(document.getElementById('modality').value);</script>
+{% endblock %}

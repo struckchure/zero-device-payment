@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Metrics results — ZeroDevicePay{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>Performance metrics</h1>
+  <p class="muted">Real comparison of enrolled templates (no simulation).</p>
+  {% if result.error %}
+    <p class="flash flash-error">{{ result.error }}</p>
+  {% else %}
+  <div class="metric-grid">
+    <div class="metric"><span>FAR</span><b>{{ '%.3f'|format(result.FAR) }}</b></div>
+    <div class="metric"><span>FRR</span><b>{{ '%.3f'|format(result.FRR) }}</b></div>
+    <div class="metric"><span>Accuracy</span><b>{{ '%.3f'|format(result.accuracy) }}</b></div>
+    <div class="metric"><span>Threshold</span><b>{{ '%.2f'|format(result.threshold) }}</b></div>
+  </div>
+  {% if result.note %}<p class="flash">{{ result.note }}</p>{% endif %}
+  <table class="table">
+    <tbody>
+      <tr><th>Enrolled users tested</th><td>{{ result.users_tested }}</td></tr>
+      <tr><th>Genuine comparisons</th><td>{{ result.genuine_attempts }}</td></tr>
+      <tr><th>Impostor comparisons</th><td>{{ result.impostor_attempts }}</td></tr>
+      <tr><th>Avg genuine score</th><td>{{ '%.4f'|format(result.avg_genuine_score) }}</td></tr>
+      <tr><th>Avg impostor score</th><td>{{ '%.4f'|format(result.avg_impostor_score) }}</td></tr>
+      <tr><th>False accepts</th><td>{{ result.false_accepts }}</td></tr>
+      <tr><th>False rejects</th><td>{{ result.false_rejects }}</td></tr>
+      <tr><th>Avg comparison time</th><td>{{ '%.4f'|format(result.avg_response_ms) }} ms</td></tr>
+    </tbody>
+  </table>
+  {% endif %}
+  <a class="btn btn-ghost" href="{{ url_for('admin.dashboard') }}">← Back to admin</a>
+</section>
+{% endblock %}

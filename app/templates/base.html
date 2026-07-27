@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Zero-Device Biometric Payments{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="{{ url_for('main.index') }}">🔒 ZeroDevice<span>Pay</span></a>
+    <nav>
+      {% if current_user %}
+        <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('main.pay') }}">Pay</a>
+        <a href="{{ url_for('main.enrol') }}">Biometrics</a>
+        {% if current_user.is_admin %}<a href="{{ url_for('admin.dashboard') }}">Admin</a>{% endif %}
+        <span class="who">{{ current_user.username }}</span>
+        <a class="btn-link" href="{{ url_for('main.logout') }}">Logout</a>
+      {% elif current_merchant %}
+        <a href="{{ url_for('merchant.dashboard') }}">Collect</a>
+        <span class="who">🏪 {{ current_merchant.name }}</span>
+        <a class="btn-link" href="{{ url_for('merchant.logout') }}">Logout</a>
+      {% else %}
+        <a href="{{ url_for('main.login') }}">Login</a>
+        <a href="{{ url_for('merchant.login') }}">Merchant</a>
+        <a class="btn-link" href="{{ url_for('main.register') }}">Register</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <main class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="flash flash-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    Academic prototype — every camera, scanner, liveness check and bank call is
+    <strong>mocked</strong>. No real hardware or financial systems are used.
+  </footer>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

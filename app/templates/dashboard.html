@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — ZeroDevicePay{% endblock %}
+{% block content %}
+<div class="row-split">
+  <section class="card">
+    <h1>Hello, {{ user.full_name or user.username }}</h1>
+    <div class="balance">
+      <span class="muted">Available balance</span>
+      <span class="amount">{{ user.account.balance|naira }}</span>
+    </div>
+    <p class="muted">Account {{ user.account.account_number }}</p>
+    <p>
+      Enrolled biometrics:
+      {% for m in user.enrolled_modalities %}<span class="pill">{{ m }}</span>{% endfor %}
+      {% if not user.enrolled_modalities %}<span class="pill pill-warn">none</span>{% endif %}
+    </p>
+    <a class="btn" href="{{ url_for('main.pay') }}">Make a payment</a>
+    <a class="btn btn-ghost" href="{{ url_for('main.enrol') }}">Manage biometrics</a>
+  </section>
+
+  <section class="card">
+    <h2>Quick auth test</h2>
+    <p class="muted">Verify a captured biometric against your enrolled template (no payment).</p>
+    <label class="inline-select">Biometric
+      <select id="auth-modality" onchange="toggleCaptureWidgets(this.value)">
+        <option value="face">Face</option>
+        <option value="fingerprint">Fingerprint</option>
+        <option value="both">Face + fingerprint</option>
+      </select>
+    </label>
+    <div class="capture" data-modality="face" data-label="Face"></div>
+    <div class="capture" data-modality="fingerprint" data-label="Fingerprint"></div>
+    <button class="btn" onclick="runAuth()">Run auth check</button>
+    <pre id="auth-result" class="result">No check run yet.</pre>
+  </section>
+</div>
+
+<section class="card">
+  <h2>Recent transactions</h2>
+  {% if transactions %}
+  <table class="table">
+    <thead><tr><th>Reference</th><th>Merchant</th><th>Amount</th><th>Method</th><th>Status</th><th>When</th></tr></thead>
+    <tbody>
+      {% for t in transactions %}
+      <tr>
+        <td><code>{{ t.reference }}</code></td>
+        <td>{{ t.merchant.name if t.merchant }}</td>
+        <td>{{ t.amount|naira }}</td>
+        <td>{{ t.auth_method }}</td>
+        <td><span class="status status-{{ t.status|lower }}">{{ t.status }}</span></td>
+        <td class="muted">{{ t.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">No transactions yet.</p>
+  {% endif %}
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/capture.js') }}"></script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+<script>toggleCaptureWidgets(document.getElementById('auth-modality').value);</script>
+{% endblock %}
