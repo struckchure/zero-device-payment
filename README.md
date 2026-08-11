@@ -212,3 +212,7 @@ notable events to `system_logs`.
 - **FRR** — False Rejection Rate: genuine users wrongly rejected / all genuine.
 - **Accuracy** — correct decisions / all decisions.
 - **Avg response time** — mean end-to-end auth latency (ms).
+
+## Demo
+
+https://github.com/user-attachments/assets/43848d2e-ba6e-4bca-a3d0-ef6f8d59ee6c
